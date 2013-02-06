@@ -1,0 +1,5 @@
+name=Views Cache Bully
+description="Forcibily cache all views, come hell or high water."
+core=7.x
+
+files[] = views_cache_bully.views.inc
