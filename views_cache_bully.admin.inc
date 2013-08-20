@@ -27,7 +27,12 @@ function views_cache_bully_admin_form() {
     '#options' => $options,
     '#default_value' => variable_get('views_cache_bully_output_lifespan', 3600),
   );
-
+  $form['views_cache_bully_exempt_exposed'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Exempt all views with exposed forms from bullying'),
+    '#description' => t('Views using exposed forms will not be cached by Views Cache Bully.'),
+    '#default_value' => variable_get('views_cache_bully_exempt_exposed', TRUE),
+  );
   $views = drupal_map_assoc(array_keys(views_get_all_views()));
   $form['views_cache_bully_exemptions'] = array(
     '#type' => 'checkboxes',

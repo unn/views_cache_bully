@@ -57,11 +57,12 @@ function views_cache_bully_form_views_ui_admin_settings_advanced_alter(&$form, &
  */
 function views_cache_bully_form_views_ui_edit_display_form_alter(&$form, &$form_state, $form_id) {
   if (isset($form_state['section']) && $form_state['section'] == 'cache') {
-    if (!views_cache_view_is_exempt($form_state['view']->name)) {
-      $form['options']['cache']['type']['#options']['none'] = t('Time-based from Views Cache Bully');
+    $view = $form_state['view'];
+    if (!views_cache_view_is_exempt($view)) {
+      $form['options']['cache']['type']['#options']['none'] = t('Time-based (from Views Cache Bully)');
     }
     else {
-      $form['options']['cache']['type']['#options']['none'] = t('Exempt from Views Cache Bully)');
+      $form['options']['cache']['type']['#options']['none'] = t('None (exempt from Views Cache Bully)');
     }
   }
 }
@@ -69,9 +70,9 @@ function views_cache_bully_form_views_ui_edit_display_form_alter(&$form, &$form_
 /**
  * Implements hook_views_pre_view().
  */
-function views_cache_bully_views_pre_view(&$view, &$display_id, &$args) {
+function views_cache_bully_views_pre_build(&$view) {
   if ($view->display_handler->get_plugin('cache')->plugin_name == 'none') {
-    if (!views_cache_view_is_exempt($view->name)) {
+    if (!views_cache_view_is_exempt($view)) {
       $view->display_handler->override_option('cache', array(
         'type' => 'time',
         'results_lifespan' => variable_get('views_cache_bully_results_lifespan', 3600),
@@ -83,8 +84,26 @@ function views_cache_bully_views_pre_view(&$view, &$display_id, &$args) {
 
 /**
  * Returns flat array of views cache bully exempt views.
+ *
+ * @param object $view
+ *   An initialized view object.
+ *
+ * @return boolean
+ *   TRUE if view should be exempted from bullying.
  */
-function views_cache_view_is_exempt($view_name) {
+function views_cache_view_is_exempt($view) {
   $exemptions = array_filter(variable_get('views_cache_bully_exemptions', array()));
-  return in_array($view_name, $exemptions);
+
+  // If administrative settings is enabled, exempt views with exposed filters.
+  if (variable_get('views_cache_bully_exempt_exposed', TRUE)) {
+    if (empty($view->inited)) {
+      watchdog('views_cache_bully', t('Error, Views Cache Bully could not evaluate view exemption for view @view_name, view was not initialized.', array('@view_name' => $view_name)));
+    }
+    elseif ($view->display[$view->current_display]->handler->uses_exposed()) {
+      return TRUE;
+    }
+  }
+
+  // If view is in exemption list, return TRUE.
+  return in_array($view->name, $exemptions);
 }
