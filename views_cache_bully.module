@@ -10,8 +10,9 @@
 function views_cache_bully_menu() {
   $items = array();
 
-  $items['admin/config/system/views-cache-bully'] = array(
+  $items['admin/settings/views-cache-bully'] = array(
     'title' => 'Views Cache Bully settings',
+    'description' => 'Configure Views Cache Bully settings',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('views_cache_bully_admin_form'),
     'access arguments' => array('administer views cache bully'),
@@ -32,7 +33,7 @@ function views_cache_bully_views_api() {
 /**
  * Implements hook_permission().
  */
-function hook_permission() {
+function hook_perm() {
   return array(
     'administer views cache bully' => array(
       'title' => t('Administer Views Cache Bully'),
@@ -44,7 +45,7 @@ function hook_permission() {
 /**
  * Implements hook_form_form_id_alter().
  */
-function views_cache_bully_form_views_ui_admin_settings_advanced_alter(&$form, &$form_state, $form_id) {
+function views_cache_bully_form_views_ui_admin_settings_advanced_alter(&$form, &$form_state) {
   unset($form['cache']['clear_cache']);
   unset($form['cache']['views_skip_cache']);
   $form['cache']['views_cache_bully'] = array(
@@ -55,10 +56,10 @@ function views_cache_bully_form_views_ui_admin_settings_advanced_alter(&$form, &
 /**
  * Implements hook_form_form_id_alter().
  */
-function views_cache_bully_form_views_ui_edit_display_form_alter(&$form, &$form_state, $form_id) {
+function views_cache_bully_form_views_ui_edit_display_form_alter(&$form, &$form_state) {
   if (isset($form_state['section']) && $form_state['section'] == 'cache') {
     $view = $form_state['view'];
-    if (!views_cache_view_is_exempt($view)) {
+    if (!views_cache_bully_view_is_exempt($view)) {
       $form['options']['cache']['type']['#options']['none'] = t('Time-based (from Views Cache Bully)');
     }
     else {
@@ -68,11 +69,11 @@ function views_cache_bully_form_views_ui_edit_display_form_alter(&$form, &$form_
 }
 
 /**
- * Implements hook_views_pre_view().
+ * Implements hook_views_pre_build().
  */
 function views_cache_bully_views_pre_build(&$view) {
-  if ($view->display_handler->get_plugin('cache')->plugin_name == 'none') {
-    if (!views_cache_view_is_exempt($view)) {
+  if (get_class($view->display_handler->get_plugin('cache')) == 'views_plugin_cache_none') {
+    if (!views_cache_bully_view_is_exempt($view)) {
       $view->display_handler->override_option('cache', array(
         'type' => 'time',
         'results_lifespan' => variable_get('views_cache_bully_results_lifespan', 3600),
@@ -91,9 +92,8 @@ function views_cache_bully_views_pre_build(&$view) {
  * @return boolean
  *   TRUE if view should be exempted from bullying.
  */
-function views_cache_view_is_exempt($view) {
+function views_cache_bully_view_is_exempt($view) {
   $exemptions = array_filter(variable_get('views_cache_bully_exemptions', array()));
-
   // If administrative settings is enabled, exempt views with exposed filters.
   if (variable_get('views_cache_bully_exempt_exposed', TRUE)) {
     if (empty($view->inited)) {
