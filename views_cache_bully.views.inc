@@ -1,14 +1,12 @@
 <?php
 /**
  * @file
- * views_cache_bully.views.inc
+ * Alters views cache plugins.
  */
 
 /**
  * Implements hook_views_plugins_alter().
  */
 function views_cache_bully_views_plugins_alter(&$plugins) {
-  unset($plugins['cache']['none']);
-  $plugins['cache']['none'] = $plugins['cache']['time'];
-  $plugins['cache']['none']['title'] = 'Time-based (from Views Cache Bully)';
+  $plugins['cache']['none']['title'] = t('Views Cache Bully');
 }
