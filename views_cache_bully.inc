@@ -27,6 +27,14 @@ function views_cache_bully_view_is_exempt($view) {
     }
   }
 
+  // If administrative settings is enabled, exempt views bulk operations views.
+  if (isset($view->display[$view->current_display]->handler->handlers['field'])) {
+    $fields = $view->display[$view->current_display]->handler->handlers['field'];
+    if (array_key_exists('views_bulk_operations', $fields) && variable_get('views_cache_bully_exempt_vbo', TRUE)) {
+      return TRUE;
+    }
+  }
+
   // If view is in exemption list, return TRUE.
   return in_array($view->name, $exemptions);
 }

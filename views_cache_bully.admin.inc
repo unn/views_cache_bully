@@ -33,6 +33,12 @@ function views_cache_bully_admin_form() {
     '#description' => t('Views using exposed forms will not be cached by Views Cache Bully.'),
     '#default_value' => variable_get('views_cache_bully_exempt_exposed', TRUE),
   );
+  $form['views_cache_bully_exempt_vbo'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Exempt all views with VBO fields from bullying'),
+    '#description' => t('Views with a views bulk operations field will not be cached by Views Cache Bully.'),
+    '#default_value' => variable_get('views_cache_bully_exempt_vbo', TRUE),
+  );
   $views = drupal_map_assoc(array_keys(views_get_all_views()));
   $form['views_cache_bully_exemptions'] = array(
     '#type' => 'checkboxes',
