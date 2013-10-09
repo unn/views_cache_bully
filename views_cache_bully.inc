@@ -11,7 +11,7 @@
  * @param object $view
  *   An initialized view object.
  *
- * @return boolean
+ * @return bool
  *   TRUE if view should be exempted from bullying.
  */
 function views_cache_bully_view_is_exempt($view) {
