@@ -36,5 +36,13 @@ function views_cache_bully_view_is_exempt($view) {
   }
 
   // If view is in exemption list, return TRUE.
-  return in_array($view->name, $exemptions);
+  if (in_array($view->name, $exemptions)) {
+    return TRUE;
+  }
+
+  // If view has tag in exemption list, return TRUE.
+  $tag_exemptions = array_filter(variable_get('views_cache_bully_tag_exemptions', array()));
+  $tags = drupal_explode_tags($view->tag);
+  $matches = array_intersect($tag_exemptions, $tags);
+  return !empty($matches);
 }

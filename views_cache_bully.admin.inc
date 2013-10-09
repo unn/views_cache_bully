@@ -39,13 +39,25 @@ function views_cache_bully_admin_form() {
     '#description' => t('Views with a views bulk operations field will not be cached by Views Cache Bully.'),
     '#default_value' => variable_get('views_cache_bully_exempt_vbo', TRUE),
   );
-  $views = drupal_map_assoc(array_keys(views_get_all_views()));
+  $views = views_get_all_views();
   $form['views_cache_bully_exemptions'] = array(
     '#type' => 'checkboxes',
     '#title' => t('Exempt the following views from bullying'),
     '#description' => t('Checked views will not be cached.'),
-    '#options' => $views,
+    '#options' => drupal_map_assoc(array_keys($views)),
     '#default_value' => variable_get('views_cache_bully_exemptions', array()),
+  );
+  $tags = array();
+  foreach ($views as $view) {
+    $tags += drupal_explode_tags($view->tag);
+  }
+  asort($tags);
+  $form['views_cache_bully_tag_exemptions'] = array(
+    '#type' => 'checkboxes',
+    '#title' => t('Exempt the views with the following tags from bullying'),
+    '#description' => t('Views with checked tag will not be cached.'),
+    '#options' => drupal_map_assoc($tags),
+    '#default_value' => variable_get('views_cache_bully_tag_exemptions', array()),
   );
 
   return system_settings_form($form);
