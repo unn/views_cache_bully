@@ -33,7 +33,7 @@ function views_cache_bully_views_api() {
 /**
  * Implements hook_permission().
  */
-function hook_perm() {
+function views_cache_bully_perm() {
   return array(
     'administer views cache bully' => array(
       'title' => t('Administer Views Cache Bully'),
