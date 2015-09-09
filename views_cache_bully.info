@@ -2,6 +2,7 @@ name=Views Cache Bully
 description="Forcibily cache all views, come hell or high water."
 core=7.x
 package=Views
+configure = admin/config/system/views-cache-bully
 
 files[] = views_cache_bully.views.inc
 dependencies[] = views
